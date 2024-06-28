@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json([], { status: 400 });
   }
 
-  const results = await fetchWebsites(prisma, query);
+  const results = await fetchWebsites(prisma, query.replaceAll("+", " "));
 
   return NextResponse.json(results);
 }

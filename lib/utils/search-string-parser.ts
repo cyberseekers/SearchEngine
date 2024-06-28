@@ -26,6 +26,26 @@ export type SearchNode =
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SearchToken = "(" | ")" | "AND" | "OR" | "NOT" | (string & {});
 
+export const validateSearchString = (input: string): boolean => {
+  const tokens = tokenize(input);
+
+  let openParentheses = 0;
+
+  for (const token of tokens) {
+    if (token === "(") {
+      openParentheses++;
+    } else if (token === ")") {
+      openParentheses--;
+
+      if (openParentheses < 0) {
+        return false;
+      }
+    }
+  }
+
+  return openParentheses === 0;
+};
+
 const tokenize = (input: string): SearchToken[] => {
   const regex = /\s*(\(|\)|AND|OR|NOT|\w+)\s*/g;
 

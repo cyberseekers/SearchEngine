@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const query = searchParameters.get("q") || searchParameters.get("query");
 
   if (!query) {
-    return NextResponse.json([], { status: 400 });
+    return NextResponse.json([]);
   }
 
   const results = await fetchWebsites(prisma, query.replaceAll("+", " "));

@@ -71,7 +71,8 @@ export const fetchWebsites = async (
           Keyword: true,
         },
       },
-    },
+      ads: true,
+    } satisfies Prisma.WebsiteInclude,
   };
 
   const websites = await prisma.website.findMany(query);
@@ -80,16 +81,24 @@ export const fetchWebsites = async (
   // string.
   // Usually we'd do something like this in the database query itself, but
   // Prisma doesn't support this kind of sorting yet.
-  websites.sort((a, b) => {
-    const aMatched = a.websiteKeywords.filter((keyword) =>
-      words.includes(keyword.Keyword.word)
-    ).length;
-    const bMatched = b.websiteKeywords.filter((keyword) =>
-      words.includes(keyword.Keyword.word)
-    ).length;
+  websites
+    .sort((a, b) => {
+      const aMatched = a.websiteKeywords.filter((keyword) =>
+        words.includes(keyword.Keyword.word)
+      ).length;
+      const bMatched = b.websiteKeywords.filter((keyword) =>
+        words.includes(keyword.Keyword.word)
+      ).length;
 
-    return bMatched - aMatched;
-  });
+      return bMatched - aMatched;
+    })
+    .sort((a, b) => {
+      // Sort by ad bid amount in descending order.
+      const aAdsBidSum = a.ads.reduce((sum, ad) => sum + ad.bid, 0);
+      const bAdsBidSum = b.ads.reduce((sum, ad) => sum + ad.bid, 0);
+
+      return bAdsBidSum - aAdsBidSum;
+    });
 
   return websites;
 };

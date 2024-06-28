@@ -13,21 +13,15 @@ export interface NotSearchNode {
   content: SearchNode;
 }
 
-export interface WordSearchNode {
-  kind: "word";
-  content: string;
-}
-
 export interface WordGroupSearchNode {
   kind: "wordGroup";
-  content: WordSearchNode[];
+  content: string[];
 }
 
 export type SearchNode =
   | OrSearchNode
   | AndSearchNode
   | NotSearchNode
-  | WordSearchNode
   | WordGroupSearchNode;
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SearchToken = "(" | ")" | "AND" | "OR" | "NOT" | (string & {});
@@ -76,19 +70,10 @@ export const not = (content: SearchNode): NotSearchNode => ({
 });
 
 /**
- * Creates a {@link WordSearchNode} with the given content. Exported for testing.
- * Do not use this function directly.
- */
-export const word = (content: string): WordSearchNode => ({
-  kind: "word",
-  content,
-});
-
-/**
  * Creates a {@link WordGroupSearchNode} with the given content. Exported for testing.
  * Do not use this function directly.
  */
-export const wordGroup = (content: WordSearchNode[]): WordGroupSearchNode => ({
+export const wordGroup = (content: string[]): WordGroupSearchNode => ({
   kind: "wordGroup",
   content,
 });
@@ -141,25 +126,28 @@ const parseTokens = (tokens: SearchToken[]): SearchNode | undefined => {
   };
 
   const parseWords = (): SearchNode | undefined => {
-    const words: WordSearchNode[] = [];
+    const words: string[] = [];
 
     while (index < tokens.length && isWord(tokens[index])) {
-      words.push(word(tokens[index++]));
+      words.push(tokens[index++]);
     }
 
-    return words.length === 1 ? words[0] : wordGroup(words);
+    return wordGroup(words);
   };
 
   return parseOr();
 };
 
 /**
- * Parses a search string into a tree of search nodes.
+ * Parses a search string into a tree of search nodes and returns the root node
+ * of the tree along with a list of words that were in the search string.
  *
  * You likely don't need to call this function directly. Instead, use
  * `createPrismaKeywordQueryObject` from the `search-query-helpers` module.
  */
-export const parseSearchString = (input: string): SearchNode => {
+export const parseSearchString = (input: string): [SearchNode, string[]] => {
   const tokens = tokenize(input);
-  return parseTokens(tokens);
+  const words = tokens.filter(isWord);
+
+  return [parseTokens(tokens), words];
 };

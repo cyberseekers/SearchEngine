@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import SearchBar from "@/components/SearchBar";
 import SearchResults from "@/components/SearchResult";
 
-const main = () => {
+const Main = () => {
   const [results, setResults] = useState([]);
 
   const handleSearch = (query) => {
@@ -44,4 +44,4 @@ const main = () => {
   );
 };
 
-export default main;
+export default Main;

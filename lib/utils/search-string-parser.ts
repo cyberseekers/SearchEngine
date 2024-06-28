@@ -18,11 +18,17 @@ export interface WordSearchNode {
   content: string;
 }
 
+export interface WordGroupSearchNode {
+  kind: "wordGroup";
+  content: WordSearchNode[];
+}
+
 export type SearchNode =
   | OrSearchNode
   | AndSearchNode
   | NotSearchNode
-  | WordSearchNode;
+  | WordSearchNode
+  | WordGroupSearchNode;
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SearchToken = "(" | ")" | "AND" | "OR" | "NOT" | (string & {});
 
@@ -42,23 +48,48 @@ const isWord = (token: SearchToken): token is string => {
   );
 };
 
+/**
+ * Creates an {@link OrSearchNode} with the given content. Exported for testing.
+ * Do not use this function directly.
+ */
 export const or = (content: SearchNode[]): OrSearchNode => ({
   kind: "or",
   content,
 });
 
+/**
+ * Creates an {@link AndSearchNode} with the given content. Exported for testing.
+ * Do not use this function directly.
+ */
 export const and = (content: SearchNode[]): AndSearchNode => ({
   kind: "and",
   content,
 });
 
+/**
+ * Creates a {@link NotSearchNode} with the given content. Exported for testing.
+ * Do not use this function directly.
+ */
 export const not = (content: SearchNode): NotSearchNode => ({
   kind: "not",
   content,
 });
 
+/**
+ * Creates a {@link WordSearchNode} with the given content. Exported for testing.
+ * Do not use this function directly.
+ */
 export const word = (content: string): WordSearchNode => ({
   kind: "word",
+  content,
+});
+
+/**
+ * Creates a {@link WordGroupSearchNode} with the given content. Exported for testing.
+ * Do not use this function directly.
+ */
+export const wordGroup = (content: WordSearchNode[]): WordGroupSearchNode => ({
+  kind: "wordGroup",
   content,
 });
 
@@ -116,12 +147,18 @@ const parseTokens = (tokens: SearchToken[]): SearchNode | undefined => {
       words.push(word(tokens[index++]));
     }
 
-    return words.length === 1 ? words[0] : or(words);
+    return words.length === 1 ? words[0] : wordGroup(words);
   };
 
   return parseOr();
 };
 
+/**
+ * Parses a search string into a tree of search nodes.
+ *
+ * You likely don't need to call this function directly. Instead, use
+ * `createPrismaKeywordQueryObject` from the `search-query-helpers` module.
+ */
 export const parseSearchString = (input: string): SearchNode => {
   const tokens = tokenize(input);
   return parseTokens(tokens);

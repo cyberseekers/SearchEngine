@@ -5,6 +5,7 @@ import {
   or,
   parseSearchString,
   word,
+  wordGroup,
 } from "../../../lib/utils/search-string-parser";
 
 test("correctly parses search strings", () => {
@@ -13,7 +14,7 @@ test("correctly parses search strings", () => {
   const actual = parseSearchString(searchString);
   const expected = or([
     and([word("foo"), word("bar")]),
-    and([or([word("baz"), word("one"), word("two")]), not(word("qux"))]),
+    and([wordGroup([word("baz"), word("one"), word("two")]), not(word("qux"))]),
   ]);
 
   expect(actual).toEqual(expected);
@@ -27,7 +28,10 @@ test("correctly parses search strings with parentheses", () => {
     word("foo"),
     or([
       word("bar"),
-      and([or([word("baz"), word("one"), word("two")]), not(word("qux"))]),
+      and([
+        wordGroup([word("baz"), word("one"), word("two")]),
+        not(word("qux")),
+      ]),
     ]),
   ]);
 

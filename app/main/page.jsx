@@ -1,9 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import SearchBar from "@/components/SearchBar";
-import SearchResults from "@/components/SearchResult";
+import SearchBar from "@/components/search-bar";
+import SearchResults from "@/components/search-result";
 
-const main = () => {
+const Main = () => {
   const [results, setResults] = useState([]);
 
   const handleSearch = (query) => {
@@ -44,4 +44,4 @@ const main = () => {
   );
 };
 
-export default main;
+export default Main;

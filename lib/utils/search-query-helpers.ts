@@ -1,80 +1,95 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { SearchNode, parseSearchString } from "./search-string-parser";
 
-const searchNodeToPrismaQuery = (
+const searchNodeToPrismaWebsiteWhereInput = (
   node: SearchNode,
   caseInsensitive = false
-): Prisma.KeywordWhereInput => {
-  const searchNodeToPrismaQueryInner = (
-    node: SearchNode
-  ): Prisma.KeywordWhereInput => {
+): Prisma.WebsiteWhereInput => {
+  const traverse = (node: SearchNode): Prisma.WebsiteWhereInput => {
     switch (node.kind) {
       case "and": {
         return {
-          AND: node.content.map((content) =>
-            searchNodeToPrismaQueryInner(content)
-          ),
+          AND: node.content.map((content) => traverse(content)),
         };
       }
       case "or": {
         return {
-          OR: node.content.map((content) =>
-            searchNodeToPrismaQueryInner(content)
-          ),
+          OR: node.content.map((content) => traverse(content)),
         };
       }
       case "not": {
         return {
-          NOT: searchNodeToPrismaQueryInner(node.content),
-        };
-      }
-      case "word": {
-        if (caseInsensitive) {
-          return {
-            word: {
-              equals: node.content,
-              mode: "insensitive",
-            },
-          };
-        }
-
-        return {
-          word: node.content,
+          NOT: traverse(node.content),
         };
       }
       case "wordGroup": {
         return {
-          // It seems better to use `AND` here, but switching it to `OR` will
-          // work as well. `AND` allows for better keyword suggestions.
-          AND: node.content.map((content) =>
-            searchNodeToPrismaQueryInner(content)
-          ),
+          websiteKeywords: {
+            some: {
+              Keyword: {
+                word: {
+                  in: node.content,
+                  mode: caseInsensitive ? "insensitive" : "default",
+                },
+              },
+            },
+          },
         };
       }
     }
   };
 
-  return searchNodeToPrismaQueryInner(node);
+  return traverse(node);
 };
 
 /**
- * Given a search string, returns a Prisma query object that can be used to
- * search for keywords.
+ * Fetches websites from the database based on the provided search string.
  *
- * @param searchString The search string to parse.
- * @param caseInsensitive Whether to perform a case-insensitive search.
+ * @param prisma - The Prisma client instance. Should be imported from
+ * `@/lib/database`.
+ * @param searchString - The search string to match against website data.
+ * @param caseInsensitive - Optional. Specifies whether the search should be
+ * case-insensitive. Defaults to false.
  *
  * @example
- * ```typescript
- * const query = createSearchQuery("foo bar OR baz");
- * const keywords = await prisma.keyword.findMany(query);
+ * ```ts
+ * const websites = await fetchWebsites(prisma, "foo AND bar OR baz one two AND NOT qux");
  * ```
  */
-export const createPrismaKeywordQueryObject = (
+export const fetchWebsites = async (
+  prisma: PrismaClient,
   searchString: string,
   caseInsensitive = false
 ) => {
-  const tree = parseSearchString(searchString);
+  const [tree, words] = parseSearchString(searchString);
 
-  return { where: searchNodeToPrismaQuery(tree, caseInsensitive) } as const;
+  const query = {
+    where: searchNodeToPrismaWebsiteWhereInput(tree, caseInsensitive),
+    include: {
+      websiteKeywords: {
+        include: {
+          Keyword: true,
+        },
+      },
+    },
+  };
+
+  const websites = await prisma.website.findMany(query);
+
+  // Sort by relevance, i.e. the number of keywords that matched the search
+  // string.
+  // Usually we'd do something like this in the database query itself, but
+  // Prisma doesn't support this kind of sorting yet.
+  websites.sort((a, b) => {
+    const aMatched = a.websiteKeywords.filter((keyword) =>
+      words.includes(keyword.Keyword.word)
+    ).length;
+    const bMatched = b.websiteKeywords.filter((keyword) =>
+      words.includes(keyword.Keyword.word)
+    ).length;
+
+    return bMatched - aMatched;
+  });
+
+  return websites;
 };

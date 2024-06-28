@@ -103,4 +103,4 @@ export const fetchWebsites = async (
   return websites;
 };
 
-export type FetchWebsitesResult = ReturnType<typeof fetchWebsites>;
+export type FetchWebsitesResult = Awaited<ReturnType<typeof fetchWebsites>>;

@@ -9,9 +9,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:migrate": "dotenv -e .env.local -- npx prisma migrate dev",
+    "prisma:generate": "npx prisma generate",
+    "prisma:deploy": "dotenv -e .env.local -- npx prisma migrate deploy"
   },
   "dependencies": {
+    "@prisma/client": "^5.16.1",
     "@reduxjs/toolkit": "^2.2.5",
     "gh-pages": "^6.1.1",
     "next": "14.2.3",
@@ -27,6 +31,7 @@
     "@types/react": "18.3.3",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.4",
     "eslint-plugin-unicorn": "^54.0.0",
@@ -47,6 +52,10 @@
     "plugins": [
       "@typescript-eslint"
     ],
+    "rules": {
+      "unicorn/prefer-module": "off",
+      "@typescript-eslint/no-var-requires": "off"
+    },
     "root": true
   }
 }

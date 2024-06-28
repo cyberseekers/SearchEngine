@@ -10,3 +10,58 @@ datasource db {
   url = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
+
+// TODO(stuart): This is a placeholder schema. Replace it with your own schema
+// as needed.
+
+model User {
+  id             Int          @id @default(autoincrement())
+  username       String       @unique
+  passwordHash   String
+  Admin          Admin?
+  Advertiser     Advertiser?
+}
+
+model Admin {
+  userId         Int          @unique
+  User           User         @relation(fields: [userId], references: [id])
+}
+
+model Advertiser {
+  userId         Int          @unique
+  User           User         @relation(fields: [userId], references: [id])
+  ads            Ad[]
+}
+
+model Website {
+  id             Int          @id @default(autoincrement())
+  url            String       @unique
+  title          String?
+  description    String?
+  ads            Ad[]
+  websiteKeywords WebsiteKeyword[]
+}
+
+model Keyword {
+  id             Int          @id @default(autoincrement())
+  word           String       @unique
+  websiteKeywords WebsiteKeyword[]
+}
+
+model WebsiteKeyword {
+  websiteId      Int
+  keywordId      Int
+  Website        Website      @relation(fields: [websiteId], references: [id])
+  Keyword        Keyword      @relation(fields: [keywordId], references: [id])
+
+  @@id([websiteId, keywordId])
+}
+
+model Ad {
+  id             Int          @id @default(autoincrement())
+  advertiserId   Int
+  websiteId      Int
+  bid            Float
+  Advertiser     Advertiser   @relation(fields: [advertiserId], references: [userId])
+  Website        Website      @relation(fields: [websiteId], references: [id])
+}

@@ -144,7 +144,7 @@ const run = async () => {
   }
 
   console.log("Assigning keywords to websites...");
-  const wordsList = randomWords(500);
+  const wordsList = randomWords(100);
   await Promise.all(
     wordsList.map(async (word) => {
       const websiteCount = random(1, websites.length / 2);

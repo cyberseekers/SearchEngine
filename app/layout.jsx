@@ -1,6 +1,6 @@
 import "./globals.css";
 //import store from "@/state/store/store";
-import { Provider } from "react-redux";
+// import { Provider } from "react-redux";
 
 export const metadata = {
   title: "Next.js",

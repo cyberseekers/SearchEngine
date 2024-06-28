@@ -4,8 +4,8 @@ import React, { useState } from "react";
 const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (error) => {
+    error.preventDefault();
     onSearch(query);
   };
 
@@ -18,7 +18,7 @@ const SearchBar = ({ onSearch }) => {
         type="text"
         className="w-4/5 max-w-lg p-2 border border-gray-300 rounded-md text-black"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(error) => setQuery(error.target.value)}
         placeholder="Enter your search query here..."
       />
       <button

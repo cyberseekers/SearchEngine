@@ -13,18 +13,38 @@ export interface NotSearchNode {
   content: SearchNode;
 }
 
-export interface WordSearchNode {
-  kind: "word";
-  content: string;
+export interface WordGroupSearchNode {
+  kind: "wordGroup";
+  content: string[];
 }
 
 export type SearchNode =
   | OrSearchNode
   | AndSearchNode
   | NotSearchNode
-  | WordSearchNode;
+  | WordGroupSearchNode;
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SearchToken = "(" | ")" | "AND" | "OR" | "NOT" | (string & {});
+
+export const validateSearchString = (input: string): boolean => {
+  const tokens = tokenize(input);
+
+  let openParentheses = 0;
+
+  for (const token of tokens) {
+    if (token === "(") {
+      openParentheses++;
+    } else if (token === ")") {
+      openParentheses--;
+
+      if (openParentheses < 0) {
+        return false;
+      }
+    }
+  }
+
+  return openParentheses === 0;
+};
 
 const tokenize = (input: string): SearchToken[] => {
   const regex = /\s*(\(|\)|AND|OR|NOT|\w+)\s*/g;
@@ -42,23 +62,39 @@ const isWord = (token: SearchToken): token is string => {
   );
 };
 
+/**
+ * Creates an {@link OrSearchNode} with the given content. Exported for testing.
+ * Do not use this function directly.
+ */
 export const or = (content: SearchNode[]): OrSearchNode => ({
   kind: "or",
   content,
 });
 
+/**
+ * Creates an {@link AndSearchNode} with the given content. Exported for testing.
+ * Do not use this function directly.
+ */
 export const and = (content: SearchNode[]): AndSearchNode => ({
   kind: "and",
   content,
 });
 
+/**
+ * Creates a {@link NotSearchNode} with the given content. Exported for testing.
+ * Do not use this function directly.
+ */
 export const not = (content: SearchNode): NotSearchNode => ({
   kind: "not",
   content,
 });
 
-export const word = (content: string): WordSearchNode => ({
-  kind: "word",
+/**
+ * Creates a {@link WordGroupSearchNode} with the given content. Exported for testing.
+ * Do not use this function directly.
+ */
+export const wordGroup = (content: string[]): WordGroupSearchNode => ({
+  kind: "wordGroup",
   content,
 });
 
@@ -110,19 +146,28 @@ const parseTokens = (tokens: SearchToken[]): SearchNode | undefined => {
   };
 
   const parseWords = (): SearchNode | undefined => {
-    const words: WordSearchNode[] = [];
+    const words: string[] = [];
 
     while (index < tokens.length && isWord(tokens[index])) {
-      words.push(word(tokens[index++]));
+      words.push(tokens[index++]);
     }
 
-    return words.length === 1 ? words[0] : or(words);
+    return wordGroup(words);
   };
 
   return parseOr();
 };
 
-export const parseSearchString = (input: string): SearchNode => {
+/**
+ * Parses a search string into a tree of search nodes and returns the root node
+ * of the tree along with a list of words that were in the search string.
+ *
+ * You likely don't need to call this function directly. Instead, use
+ * `createPrismaKeywordQueryObject` from the `search-query-helpers` module.
+ */
+export const parseSearchString = (input: string): [SearchNode, string[]] => {
   const tokens = tokenize(input);
-  return parseTokens(tokens);
+  const words = tokens.filter(isWord);
+
+  return [parseTokens(tokens), words];
 };

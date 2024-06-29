@@ -1,45 +1,21 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import SearchBar from "@/components/search-bar";
 import SearchResults from "@/components/search-result";
+import { useSearchResults } from "@/lib/hooks/use-search-results";
 
 const Main = () => {
-  const [results, setResults] = useState([]);
+  const { data, isLoading, setSearchQueryString } = useSearchResults();
 
   const handleSearch = (query) => {
-    // Sample data for demonstration
-    const sampleData = [
-      {
-        title:
-          "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Provident recusandae veniam dolore sint illum itaque quidem laudantium quibusdam impedit inventore illo quod unde, maxime dolorem, dicta voluptatibus dignissimos nesciunt sed.",
-        url: "http://kk.com",
-        description:
-          "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Provident recusandae veniam dolore sint illum itaque quidem laudantium quibusdam impedit inventore illo quod unde, maxime dolorem, dicta voluptatibus dignissimos nesciunt sed.",
-      },
-      {
-        title:
-          "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Provident recusandae veniam dolore sint illum itaque quidem laudantium quibusdam impedit inventore illo quod unde, maxime dolorem, dicta voluptatibus dignissimos nesciunt sed.",
-        url: "http://kk.org",
-        description:
-          "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Provident recusandae veniam dolore sint illum itaque quidem laudantium quibusdam impedit inventore illo quod unde, maxime dolorem, dicta voluptatibus dignissimos nesciunt sed.",
-      },
-    ];
-
-    // Filter sample data based on the query
-    const filteredResults = sampleData.filter(
-      (item) =>
-        item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.description.toLowerCase().includes(query.toLowerCase())
-    );
-
-    setResults(filteredResults);
+    setSearchQueryString(query);
   };
 
   return (
     <div className="font-sans bg-gray-100 text-center p-12 min-h-screen">
       <h1 className="text-4xl font-bold mb-8 text-black">Search Engine</h1>
       <SearchBar onSearch={handleSearch} />
-      <SearchResults results={results} />
+      {isLoading ? () => <p>Loading...</p> : <SearchResults results={data} />}
     </div>
   );
 };

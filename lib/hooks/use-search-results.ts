@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FetchWebsitesResult, WebsiteSortMode } from "../types/search";
 import { Pageable } from "../types/pageable";
 
@@ -97,6 +97,10 @@ export const useSearchResults = (
     queryFn: () =>
       fetchWebsites(searchQueryString, sortModes, pageNumber, pageSize),
   });
+
+  useEffect(() => {
+    setPageNumber(1);
+  }, [pageSize]);
 
   return {
     searchQueryString,

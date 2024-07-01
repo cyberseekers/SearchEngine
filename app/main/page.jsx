@@ -24,6 +24,8 @@ const Main = () => {
     setSearchQueryString,
     setPageNumber,
     setSortModes,
+    pageSize,
+    setPageSize,
   } = useSearchResults(
     DEFAULT_SORT_MODES,
     DEFAULT_PAGE_NUMBER,
@@ -64,6 +66,24 @@ const Main = () => {
             <SearchResults results={data?.content} hideAds={hideAds} />
           </div>
         )}
+      </div>
+      <div className="fixed bottom-4 left-4 text-sm text-gray-500">
+        <div className="flex items-center space-x-2">
+          <label>Show</label>
+          <select
+            value={pageSize}
+            onChange={(event) =>
+              setPageSize(Number.parseInt(event.target.value, 10))
+            }
+          >
+            {[5, 10, 15, 20, 25].map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+          <label>results per page.</label>
+        </div>
       </div>
       <div className="fixed bottom-4 right-4">
         {isSuccess && data.content.length > 0 && (

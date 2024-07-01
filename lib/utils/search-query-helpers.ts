@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { SearchNode, parseSearchString } from "./search-string-parser";
+import { FetchWebsitesResult, WebsiteSortMode } from "../types/search";
 
 const searchNodeToPrismaWebsiteWhereInput = (
   node: SearchNode,
@@ -48,6 +49,9 @@ const searchNodeToPrismaWebsiteWhereInput = (
  * @param prisma - The Prisma client instance. Should be imported from
  * `@/lib/database`.
  * @param searchString - The search string to match against website data.
+ * @param sortModes - Optional. An array of modes to sort the results by. Defaults to
+ * `["ads", "relevance"]`. Multiple modes can be specified, and the results will
+ * be sorted by the first mode first, then the second mode, and so on.
  * @param caseInsensitive - Optional. Specifies whether the search should be
  * case-insensitive. Defaults to false.
  *
@@ -59,6 +63,10 @@ const searchNodeToPrismaWebsiteWhereInput = (
 export const fetchWebsites = async (
   prisma: PrismaClient,
   searchString: string,
+  sortModes: WebsiteSortMode[] = [
+    WebsiteSortMode.SORT_BY_ADS,
+    WebsiteSortMode.SORT_BY_RELEVANCE,
+  ],
   caseInsensitive = false
 ) => {
   const [tree, words] = parseSearchString(searchString);
@@ -77,30 +85,59 @@ export const fetchWebsites = async (
 
   const websites = await prisma.website.findMany(query);
 
-  // Sort by relevance, i.e. the number of keywords that matched the search
-  // string.
-  // Usually we'd do something like this in the database query itself, but
-  // Prisma doesn't support this kind of sorting yet.
-  websites
-    .sort((a, b) => {
-      const aMatched = a.websiteKeywords.filter((keyword) =>
-        words.includes(keyword.Keyword.word)
-      ).length;
-      const bMatched = b.websiteKeywords.filter((keyword) =>
-        words.includes(keyword.Keyword.word)
-      ).length;
-
-      return bMatched - aMatched;
-    })
-    .sort((a, b) => {
-      // Sort by ad bid amount in descending order.
-      const aAdsBidSum = a.ads.reduce((sum, ad) => sum + ad.bid, 0);
-      const bAdsBidSum = b.ads.reduce((sum, ad) => sum + ad.bid, 0);
-
-      return bAdsBidSum - aAdsBidSum;
-    });
+  for (const sortMode of [...sortModes].reverse()) {
+    switch (sortMode) {
+      case WebsiteSortMode.SORT_BY_RELEVANCE: {
+        websites.sort(sortByRelevance(words));
+        break;
+      }
+      case WebsiteSortMode.SORT_BY_ADS: {
+        websites.sort(sortByAds);
+        break;
+      }
+      case WebsiteSortMode.SORT_ALPHABETICALLY: {
+        websites.sort(sortAlphabetically);
+        break;
+      }
+      case WebsiteSortMode.SORT_BY_CLICKS: {
+        websites.sort(sortByClicks);
+        break;
+      }
+    }
+  }
 
   return websites;
 };
 
-export type FetchWebsitesResult = Awaited<ReturnType<typeof fetchWebsites>>;
+const sortByRelevance =
+  (words: string[]) =>
+  (a: FetchWebsitesResult[number], b: FetchWebsitesResult[number]) => {
+    const aMatched = a.websiteKeywords.filter((keyword) =>
+      words.includes(keyword.Keyword.word)
+    ).length;
+    const bMatched = b.websiteKeywords.filter((keyword) =>
+      words.includes(keyword.Keyword.word)
+    ).length;
+
+    return bMatched - aMatched;
+  };
+
+const sortByAds = (
+  a: FetchWebsitesResult[number],
+  b: FetchWebsitesResult[number]
+) => {
+  const aAdsBidSum = a.ads.reduce((sum, ad) => sum + ad.bid, 0);
+  const bAdsBidSum = b.ads.reduce((sum, ad) => sum + ad.bid, 0);
+
+  return bAdsBidSum - aAdsBidSum;
+};
+
+const sortAlphabetically = (
+  a: FetchWebsitesResult[number],
+  b: FetchWebsitesResult[number]
+) => a.url.localeCompare(b.url);
+
+const sortByClicks = (
+  a: FetchWebsitesResult[number],
+  b: FetchWebsitesResult[number]
+) => b.clickCount - a.clickCount;

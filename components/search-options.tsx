@@ -41,6 +41,16 @@ export const SearchOptions = ({
         </button>
         <button
           className={`px-2 py-1 rounded ${
+            sortOption === WebsiteSortMode.SORT_ALPHABETICALLY
+              ? "bg-blue-500 text-white"
+              : "bg-white text-gray-700 border"
+          }`}
+          onClick={() => handleSortChange(WebsiteSortMode.SORT_ALPHABETICALLY)}
+        >
+          Alphabetically
+        </button>
+        <button
+          className={`px-2 py-1 rounded ${
             sortOption === WebsiteSortMode.SORT_BY_CLICKS
               ? "bg-blue-500 text-white"
               : "bg-white text-gray-700 border"

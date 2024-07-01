@@ -5,6 +5,7 @@
 1. Install [Postgres](https://www.postgresql.org/download/).
 2. Create a new database called `search_engine`.
 3. Create a copy of the `.env.example` file and name it `.env.local`. Fill in the fields with the appropriate values.
+4. Run `npm run seed-db` to seed the database with some sample data.
 
 ## Commands (to use during development)
 

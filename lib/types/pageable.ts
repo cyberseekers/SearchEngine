@@ -6,4 +6,5 @@ export interface Pageable<T extends unknown[]> {
   totalPages: number;
   hasPrevious: boolean;
   hasNext: boolean;
+  time: number;
 }

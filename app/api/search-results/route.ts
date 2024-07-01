@@ -12,12 +12,13 @@ const sortModeMap = {
 };
 
 export async function GET(request: NextRequest) {
+  const start = Date.now();
+
   const searchParameters = request.nextUrl.searchParams;
 
   const query = searchParameters.get("q");
 
-  const requestedSortModes = searchParameters
-    .get("sort")
+  const requestedSortModes = (searchParameters.get("sort") ?? "")
     .split(",")
     .map((mode) => sortModeMap[mode])
     .filter(Boolean) as WebsiteSortMode[];
@@ -33,7 +34,18 @@ export async function GET(request: NextRequest) {
   );
 
   if (!query) {
-    return NextResponse.json([]);
+    const end = Date.now();
+
+    return NextResponse.json({
+      content: [],
+      pageNumber,
+      pageSize,
+      totalElements: 0,
+      totalPages: 0,
+      hasNext: false,
+      hasPrevious: false,
+      time: end - start,
+    } satisfies Pageable<FetchWebsitesResult>);
   }
 
   const results = await fetchWebsites(
@@ -51,6 +63,8 @@ export async function GET(request: NextRequest) {
   const hasNext = endIndex < totalElements;
   const hasPrevious = startIndex > 0;
 
+  const end = Date.now();
+
   return NextResponse.json({
     content,
     pageNumber,
@@ -59,5 +73,6 @@ export async function GET(request: NextRequest) {
     totalPages,
     hasNext,
     hasPrevious,
+    time: end - start,
   } satisfies Pageable<FetchWebsitesResult>);
 }

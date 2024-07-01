@@ -1,32 +1,86 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SearchBar from "@/components/search-bar";
 import SearchResults from "@/components/search-result";
-import Tool from "@/components/tool";
-import { useSearchResults } from "@/lib/hooks/use-search-results";
+import {
+  DEFAULT_PAGE_NUMBER,
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_SORT_MODES,
+  useSearchResults,
+} from "@/lib/hooks/use-search-results";
+import { SiSpinrilla } from "react-icons/si";
+import { PaginationComponent } from "@/components/pagination";
+import { SearchOptions } from "@/components/search-options";
+import { WebsiteSortMode } from "@/lib/types/search";
 
 const Main = () => {
-  const { data, isLoading, setSearchQueryString } = useSearchResults();
+  const {
+    data,
+    error,
+    isPending,
+    isError,
+    searchQueryString,
+    isSuccess,
+    setSearchQueryString,
+    setPageNumber,
+    setSortModes,
+  } = useSearchResults(
+    DEFAULT_SORT_MODES,
+    DEFAULT_PAGE_NUMBER,
+    DEFAULT_PAGE_SIZE
+  );
+
+  const [sortBy, setSortBy] = useState(WebsiteSortMode.SORT_BY_RELEVANCE);
+  const [hideAds, setHideAds] = useState(false);
+
+  useEffect(() => {
+    if (hideAds) {
+      setSortModes([sortBy]);
+    } else {
+      setSortModes([WebsiteSortMode.SORT_BY_ADS, sortBy]);
+    }
+  }, [sortBy, hideAds, setSortModes]);
 
   const handleSearch = (query) => {
     setSearchQueryString(query);
   };
 
-return (
+  return (
     <div className="font-sans bg-gray-100 text-center p-12 min-h-screen">
       <h1 className="text-4xl font-bold mb-8 text-black">Search Engine</h1>
       <SearchBar onSearch={handleSearch} />
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="flex justify-center mt-8">
+      <SearchOptions onSortChange={setSortBy} onHideAdsChange={setHideAds} />
+      <div className="flex justify-center mt-8 text-gray-500">
+        {searchQueryString.trim() === "" ? (
+          <span></span>
+        ) : isPending ? (
+          <SiSpinrilla className="animate-spin h-6 w-6" />
+        ) : isError ? (
+          <p className="text-red-500">
+            An unexpected error occured: {error.message}
+          </p>
+        ) : (
           <div className="w-3/5">
-            <SearchResults results={data} />
+            <SearchResults results={data?.content} hideAds={hideAds} />
           </div>
-          <div className="w-2/5">
-            <Tool /> 
-          </div>
-        </div>
+        )}
+      </div>
+      <div className="fixed bottom-4 right-4">
+        {isSuccess && data.content.length > 0 && (
+          <p className="text-sm text-gray-500">
+            Found {data.totalElements} results in{" "}
+            {(data.time / 1000).toFixed(3)} seconds.
+          </p>
+        )}
+      </div>
+      {isSuccess && data.content.length > 0 && (
+        <PaginationComponent
+          totalPages={data.totalPages}
+          hasPrevious={data.hasPrevious}
+          hasNext={data.hasNext}
+          currentPage={data.pageNumber}
+          onPageChange={setPageNumber}
+        />
       )}
     </div>
   );

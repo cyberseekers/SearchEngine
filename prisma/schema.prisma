@@ -38,6 +38,7 @@ model Website {
   url            String       @unique
   title          String?
   description    String?
+  clickCount     Int          @default(0)
   ads            Ad[]
   websiteKeywords WebsiteKeyword[]
 }

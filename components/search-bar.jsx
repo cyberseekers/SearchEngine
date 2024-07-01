@@ -3,14 +3,27 @@ import { useAutofill } from "@/lib/hooks/use-autofill";
 import React, { useEffect, useState } from "react";
 
 const SearchBar = ({ onSearch }) => {
-  const { isSuccess, data, setWord, setKind } = useAutofill(1);
+  const { isSuccess, data, setWord, setKind } = useAutofill(10);
+
+  const [userInput, setUserInput] = useState("");
+  const [autofillSuggestionIndex, setAutofillSuggestionIndex] = useState(0);
+
+  const getAutofillSuggestionAtCurrentIndex = () => {
+    if (!data) {
+      return;
+    }
+
+    const realIndex = Math.abs(autofillSuggestionIndex % data.words.length);
+
+    return data.words[realIndex];
+  };
 
   const getCurrentWordAutofillSuggestion = () => {
     if (!isSuccess || data.kind !== "current") {
       return "";
     }
 
-    return data.words[0] ?? "";
+    return getAutofillSuggestionAtCurrentIndex() ?? "";
   };
 
   const getNextWordAutofillSuggestion = () => {
@@ -18,10 +31,8 @@ const SearchBar = ({ onSearch }) => {
       return "";
     }
 
-    return data.words[0] ?? "";
+    return getAutofillSuggestionAtCurrentIndex() ?? "";
   };
-
-  const [userInput, setUserInput] = useState("");
 
   useEffect(() => {
     if (!userInput) {
@@ -86,16 +97,27 @@ const SearchBar = ({ onSearch }) => {
   };
 
   const handleKeypress = (event) => {
-    if (event.key === "Tab") {
-      event.preventDefault();
-
-      const [suggestion] = getSuggestion();
-
-      if (!suggestion) {
-        return;
+    switch (event.key) {
+      case "Tab": {
+        event.preventDefault();
+        const [suggestion] = getSuggestion();
+        if (!suggestion) {
+          return;
+        }
+        setUserInput(suggestion);
+        break;
       }
-
-      setUserInput(suggestion);
+      case "ArrowUp": {
+        event.preventDefault();
+        setAutofillSuggestionIndex((prev) => prev - 1);
+        break;
+      }
+      case "ArrowDown": {
+        event.preventDefault();
+        setAutofillSuggestionIndex((prev) => prev + 1);
+        break;
+      }
+      // No default
     }
   };
 

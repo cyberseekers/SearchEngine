@@ -1,7 +1,32 @@
 import { prisma } from "@/lib/database";
+import {
+  getCachedAutofillResult,
+  setCachedAutofillResult,
+} from "@/lib/database/cache";
 import { AutofillResponse } from "@/lib/types/autofill";
 import { getAutofillWords, getRelatedKeywords } from "@/lib/utils/autofill";
 import { NextRequest, NextResponse } from "next/server";
+
+const fetchAndCacheAutofillResult = async (
+  kind: "current" | "forecast",
+  word: string,
+  maxResults: number
+) => {
+  const suggestions =
+    kind === "current"
+      ? await getAutofillWords(prisma, word, maxResults)
+      : await getRelatedKeywords(prisma, word, maxResults);
+
+  const result = {
+    kind,
+    words: suggestions,
+  } satisfies AutofillResponse;
+
+  // Do not await to avoid blocking the response
+  setCachedAutofillResult(kind, word, result);
+
+  return result;
+};
 
 export async function GET(request: NextRequest) {
   const searchParameters = request.nextUrl.searchParams;
@@ -20,13 +45,13 @@ export async function GET(request: NextRequest) {
     } satisfies AutofillResponse);
   }
 
-  const suggestions =
-    kind === "current"
-      ? await getAutofillWords(prisma, word, maxResults)
-      : await getRelatedKeywords(prisma, word, maxResults);
+  // Try to get the cached result
+  const cachedResult = await getCachedAutofillResult(kind, word);
+  if (cachedResult) {
+    return NextResponse.json(cachedResult);
+  }
 
-  return NextResponse.json({
-    kind,
-    words: suggestions,
-  } satisfies AutofillResponse);
+  const result = await fetchAndCacheAutofillResult(kind, word, maxResults);
+
+  return NextResponse.json(result);
 }

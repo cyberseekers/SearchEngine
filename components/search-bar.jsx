@@ -8,6 +8,9 @@ const SearchBar = ({ onSearch }) => {
     error.preventDefault();
     onSearch(query);
   };
+    const handleChange = (event) => {
+    setQuery(event.target.value); // Updates the query state as the user types in the input field
+  };
 
   return (
     <form
@@ -18,7 +21,7 @@ const SearchBar = ({ onSearch }) => {
         type="text"
         className="w-4/5 max-w-lg p-2 border border-gray-300 rounded-md text-black"
         value={query}
-        onChange={(error) => setQuery(error.target.value)}
+        onChange={handleChange}
         placeholder="Enter your search query here..."
       />
       <button

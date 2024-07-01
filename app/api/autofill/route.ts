@@ -23,7 +23,7 @@ const fetchAndCacheAutofillResult = async (
   } satisfies AutofillResponse;
 
   // Do not await to avoid blocking the response
-  setCachedAutofillResult(kind, word, result);
+  setCachedAutofillResult(kind, word, maxResults, result);
 
   return result;
 };
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Try to get the cached result
-  const cachedResult = await getCachedAutofillResult(kind, word);
+  const cachedResult = await getCachedAutofillResult(kind, word, maxResults);
   if (cachedResult) {
     return NextResponse.json(cachedResult);
   }

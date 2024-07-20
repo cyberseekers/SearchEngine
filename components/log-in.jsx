@@ -1,9 +1,23 @@
 import React from "react";
+import '../styles/login.css';
+import LoggedOutNav from './logged-out-nav';
+
 
 const LogIn = () => {
 
     return (
-        <div className="login-container">
+        <div >
+            <LoggedOutNav />
+            <div className="login-container">
+                <div className="login-box">
+                    <form className="login-form">
+
+                    </form>
+                </div>
+            </div>
+
+
+
 
         </div>
 

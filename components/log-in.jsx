@@ -12,6 +12,18 @@ const LogIn = () => {
                 <div className="login-box">
                     <form className="login-form">
                         <h1>Login</h1>
+                        <div className="input-group">
+                            <label className="label-login">
+                                UserName:
+                                <input className="username-box"
+                                    id='username'
+                                    name="username"
+                                    type="text"
+                                    placeholder="username"
+                                    required
+                                />
+                            </label>
+                        </div>
 
 
                     </form>

@@ -7,9 +7,9 @@ const LoggedOutNav = () => {
 
 
     return (
-        <div className="nav">
+        <nav className="nav">
             <Link href='/'>Home</Link>
-        </div>
+        </nav>
 
     )
 }

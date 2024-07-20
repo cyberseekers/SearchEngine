@@ -19,7 +19,20 @@ const LogIn = () => {
                                     id='username'
                                     name="username"
                                     type="text"
-                                    placeholder="username"
+                                    placeholder="Username"
+                                    required
+                                />
+                                <div className="errors">
+                                </div>
+
+                            </label>
+                            <label className="label-login">
+                                Password:
+                                <input className="password-box"
+                                    id='password'
+                                    name="password"
+                                    type="password"
+                                    placeholder="Password"
                                     required
                                 />
                             </label>

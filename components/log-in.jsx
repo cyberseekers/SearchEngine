@@ -36,7 +36,17 @@ const LogIn = () => {
                                     required
                                 />
                             </label>
+                            <div className="errors">
+
+                            </div>
                         </div>
+
+                        <button
+                            type="submit"
+                            className="log-submit"
+                        >
+                            Login
+                        </button>
 
 
                     </form>

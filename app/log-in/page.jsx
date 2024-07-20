@@ -1,6 +1,6 @@
 import React from "react";
-import '../styles/login.css';
-import LoggedOutNav from './logged-out-nav';
+import '../../styles/login.css';
+import LoggedOutNav from '../../components/logged-out-nav';
 
 
 const LogIn = () => {

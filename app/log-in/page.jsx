@@ -8,13 +8,13 @@ const LogIn = () => {
     return (
         <div >
             <LoggedOutNav />
-            <div className="login-container">
+            <div className="login-container" >
                 <div className="login-box">
                     <form className="login-form">
                         <h1>Login</h1>
                         <div className="input-group">
                             <label className="label-login">
-                                UserName:
+                                Username:
                                 <input className="username-box"
                                     id='username'
                                     name="username"

@@ -1,0 +1,51 @@
+.login-form{
+    text-align: center;
+    box-shadow:2px 2px 2px 2px rgba(128,128,128,0.8);    
+    max-width:20em;
+    height:40%;
+    background-color: ghostwhite;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 20px;
+    margin:auto;
+    
+}
+
+.log-submit{
+    background-color: rgba(30, 48, 246, 0.7);
+    border:1px solid black;
+    border-radius:30px;
+    width: 30%;
+    margin:auto;
+    color:white;
+
+
+}
+
+.login-box{
+    margin-top:6em;
+    height:40em;
+    
+}
+
+.label-login{
+    display:flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+
+}
+
+.password-box{
+    width:80%;
+    margin:auto;
+    border-radius: 10px;
+    border:1px solid black;
+}
+
+.username-box{
+    width:80%;
+    margin:auto;
+    border-radius: 10px;
+    border:1px solid black;
+}

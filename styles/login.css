@@ -19,7 +19,13 @@
     width: 30%;
     margin:auto;
     color:white;
+    box-shadow:2px 2px 2px 2px rgba(128,128,128,0.8);
 
+
+}
+
+.log-submit:hover{
+    background-color: rgba(23, 43, 101, 0.7);
 
 }
 

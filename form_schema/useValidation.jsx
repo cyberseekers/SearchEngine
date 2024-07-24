@@ -26,7 +26,12 @@ export const useValidation = (schema) => {
                 setErrors({ ...errors, [name]: error.errors[0] })
 
             })
+        setData({
+            ...data,
+            [name]: value
+        })
 
 
     }
+    return [data, errors, onInputChange]
 }

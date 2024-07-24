@@ -18,7 +18,7 @@ export const useValidation = (schema) => {
     const onInputChange = (event) => {
         const { name, value } = event.target
         yup.reach(schema, name)
-            .validation(value)
+            .validate(value)
             .then(() => {
                 setErrors({ ...errors, [name]: "" })
             })

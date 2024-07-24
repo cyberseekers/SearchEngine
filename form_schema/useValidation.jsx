@@ -5,3 +5,8 @@ const initialValues = {
     username: '',
     password: ''
 }
+
+const initialErrors = {
+    username: '',
+    password: ''
+}

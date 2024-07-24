@@ -2,11 +2,17 @@
 import { useAutofill } from "@/lib/hooks/use-autofill";
 import React, { useEffect, useState } from "react";
 
-const SearchBar = ({ onSearch }) => {
+const SearchBar = ({
+  onSearch,
+  onInputChange,
+  searchHistory,
+}) => {
   const { isSuccess, data, setWord, setKind } = useAutofill(10);
 
   const [userInput, setUserInput] = useState("");
   const [autofillSuggestionIndex, setAutofillSuggestionIndex] = useState(0);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredHistory, setFilteredHistory] = useState([]);
 
   const getAutofillSuggestionAtCurrentIndex = () => {
     if (!data) {
@@ -33,6 +39,14 @@ const SearchBar = ({ onSearch }) => {
 
     return getAutofillSuggestionAtCurrentIndex() ?? "";
   };
+
+  useEffect(() => {
+    setFilteredHistory(
+      searchHistory.filter((item) =>
+        item.toLowerCase().includes(userInput.toLowerCase())
+      )
+    );
+  }, [userInput, searchHistory]);
 
   useEffect(() => {
     if (!userInput) {
@@ -94,6 +108,8 @@ const SearchBar = ({ onSearch }) => {
 
   const handleChange = (event) => {
     setUserInput(event.target.value); // Updates the query state as the user types in the input field
+    setShowSuggestions(true);
+    onInputChange(event.target.value);
   };
 
   const handleKeypress = (event) => {
@@ -120,6 +136,22 @@ const SearchBar = ({ onSearch }) => {
       // No default
     }
   };
+  const handleSearch = (query) => {
+    setUserInput(query);
+    setShowSuggestions(false);
+    onSearch(query);
+
+    if (!searchHistory.includes(query)) {
+      onInputChange(query);
+    }
+  };
+  const handleSuggestionClick = (suggestion) => {
+    handleSearch(suggestion);
+  };
+  const combinedSuggestions = [
+    ...filteredHistory.map((hist) => ({ type: "history", value: hist })),
+    ...(data?.words.map((word) => ({ type: "autofill", value: word })) || [])
+  ];
 
   return (
     <form
@@ -135,6 +167,27 @@ const SearchBar = ({ onSearch }) => {
           onKeyDown={handleKeypress}
           placeholder="Enter your search query here..."
         />
+        {showSuggestions && userInput.trim() !== "" && (
+          <div className="absolute bg-white border border-gray-300 mt-1 w-full rounded-md shadow-lg z-10">
+            <ul>
+              {combinedSuggestions.length > 0 ? (
+                combinedSuggestions.map((item, index) => (
+                  <li
+                    key={index}
+                    className={`p-2 hover:bg-gray-200 cursor-pointer ${
+                      item.type === "history" ? "text-purple-600" : ""
+                      } ${item.type === "autofill" ? "font-bold" : ""}`}
+                    onClick={() => handleSuggestionClick(item.value)}
+                  >
+                    {item.value}
+                  </li>
+                ))
+              ) : (
+                <li className="p-2 text-gray-500">No suggestions found</li>
+              )}
+            </ul>
+          </div>
+        )}
         <SuggestionOverlay suggestion={getSuggestion()} />
       </div>
       <button

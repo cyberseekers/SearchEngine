@@ -1,9 +1,38 @@
+"use client"
 import React from "react";
 import '../../styles/login.css';
 import LoggedOutNav from '../../components/logged-out-nav';
+import LoginFormSchema from '../../form_schema/login-schema'
+import { useValidation } from '../../form_schema/use-validation'
+import { useState } from "react";
 
 
 const LogIn = () => {
+
+    const [login, errors, setLogin] = useValidation(LoginFormSchema);
+    const initialDisabled = true;
+    const [disabled, setDisabled] = useState(initialDisabled);
+
+    const change = (event) => {
+        setLogin(event, login);
+    }
+
+    const handleDisabled = (e) => {
+        e.preventDefault()
+        if (login.username.length > 0 && login.password.length > 0) {
+            setDisabled(() => ({
+                disabled: !disabled
+            }))
+        }
+        else {
+            setDisabled(() => ({
+                disabled: disabled
+            }))
+        }
+    }
+
+
+
 
     return (
         <div >
@@ -21,8 +50,10 @@ const LogIn = () => {
                                     type="text"
                                     placeholder="Username"
                                     required
+                                    onChange={change}
                                 />
                                 <div className="errors">
+                                    <p>{errors.username}</p>
                                 </div>
 
                             </label>
@@ -34,9 +65,11 @@ const LogIn = () => {
                                     type="password"
                                     placeholder="Password"
                                     required
+                                    onChange={change}
                                 />
                             </label>
                             <div className="errors">
+                                <p>{errors.password}</p>
 
                             </div>
                         </div>
@@ -44,6 +77,7 @@ const LogIn = () => {
                         <button
                             type="submit"
                             className="log-submit"
+                            disabled={handleDisabled}
                         >
                             Login
                         </button>

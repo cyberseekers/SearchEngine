@@ -1,6 +1,8 @@
 "use client";
 import { useAutofill } from "@/lib/hooks/use-autofill";
 import React, { useEffect, useState } from "react";
+import { MdHistory } from "react-icons/md";
+import { TbBulb } from "react-icons/tb";
 
 const SearchBar = ({
   onSearch,
@@ -176,9 +178,15 @@ const SearchBar = ({
                     key={index}
                     className={`p-2 hover:bg-gray-200 cursor-pointer ${
                       item.type === "history" ? "text-purple-600" : ""
-                      } ${item.type === "autofill" ? "font-bold" : ""}`}
+                    } ${item.type === "autofill" ? "font-bold" : ""}`}
                     onClick={() => handleSuggestionClick(item.value)}
                   >
+                    {item.type === "history" && (
+                      <MdHistory className="inline-block mr-2" />
+                    )}
+                    {item.type === "autofill" && (
+                      <TbBulb className="inline-block mr-2" />
+                    )}
                     {item.value}
                   </li>
                 ))

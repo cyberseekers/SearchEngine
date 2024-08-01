@@ -185,6 +185,7 @@ const SearchBar = ({ onSearch, onInputChange, searchHistory }) => {
         <input
           type="text"
           className="w-full p-2 border border-gray-300 rounded-md text-black"
+          spellCheck={true}
           value={userInput}
           onChange={handleChange}
           onKeyDown={handleKeypress}

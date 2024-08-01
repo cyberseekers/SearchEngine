@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 
 interface User {
@@ -24,7 +26,7 @@ export const useAuth = (): {
   }, []);
 
   const login = async (username: string, password: string) => {
-    return fetch("/api/auth/login", {
+    return fetch("/api/auth", {
       method: "POST",
       body: JSON.stringify({ username, password }),
     })

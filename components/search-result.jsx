@@ -1,8 +1,17 @@
 "use client";
-import { incrementClickCount } from "@/lib/utils/server-actions";
+import { useAuth } from "@/lib/hooks/use-auth";
+import { deleteWebsite, incrementClickCount } from "@/lib/utils/server-actions";
+import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
+import { SiSpinrilla } from "react-icons/si";
 
 const SearchResults = ({ results, hideAds }) => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["search-results"] });
+
   return (
     <div className="mt-4 text-left w-4/5 max-w-lg mx-auto">
       {results === undefined || results.length === 0 ? (
@@ -16,6 +25,8 @@ const SearchResults = ({ results, hideAds }) => {
             description={item.description}
             url={item.url}
             isAd={!hideAds && item.ads.length > 0}
+            isAdmin={!!user?.isAdmin}
+            invalidate={invalidate}
           />
           // <div
           //   key={index}
@@ -31,7 +42,17 @@ const SearchResults = ({ results, hideAds }) => {
   );
 };
 
-const SearchResultCard = ({ id, title, description, url, isAd }) => {
+const SearchResultCard = ({
+  id,
+  title,
+  description,
+  url,
+  isAd,
+  isAdmin,
+  invalidate,
+}) => {
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
   return (
     <div
       className={`flex border p-4 rounded-lg ${
@@ -62,6 +83,23 @@ const SearchResultCard = ({ id, title, description, url, isAd }) => {
           {url}
         </a>
         <p className="text-gray-700 mt-1">{description}</p>
+        {isAdmin && (
+          <div className="text-end text-red-600 font-bold">
+            {isDeleting ? (
+              <SiSpinrilla className="inline animate-spin h-4 w-4" />
+            ) : (
+              <a
+                onClick={() => {
+                  setIsDeleting(true);
+                  deleteWebsite(id).then(() => invalidate());
+                }}
+                className="hover:underline text-sm cursor-pointer"
+              >
+                Delete result
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

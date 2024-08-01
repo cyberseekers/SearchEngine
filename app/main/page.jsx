@@ -36,6 +36,8 @@ const Main = () => {
 
   const [sortBy, setSortBy] = useState(WebsiteSortMode.SORT_BY_RELEVANCE);
   const [hideAds, setHideAds] = useState(false);
+  const [searchHistory, setSearchHistory] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
 
   useEffect(() => {
     if (hideAds) {
@@ -47,13 +49,28 @@ const Main = () => {
 
   const handleSearch = (query) => {
     setSearchQueryString(query);
+    if (!searchHistory.includes(query)) {
+      setSearchHistory([...searchHistory, query]);
+    }
+  };
+
+  const handleInputChange = (query) => {
+    const filteredRecommendations = searchHistory.filter((item) =>
+      item.toLowerCase().includes(query.toLowerCase())
+    );
+    setRecommendations(filteredRecommendations);
   };
 
   return (
     <div className="font-sans bg-gray-100 text-center p-12 min-h-screen">
       <LoggedOutNav />
       <h1 className="text-4xl font-bold mb-8 text-black">Search Engine</h1>
-      <SearchBar onSearch={handleSearch} />
+      <SearchBar
+        onSearch={handleSearch}
+        onInputChange={handleInputChange}
+        recommendations={recommendations}
+        searchHistory={searchHistory}
+      />
       <SearchOptions onSortChange={setSortBy} onHideAdsChange={setHideAds} />
       <div className="flex justify-center mt-8 text-gray-500">
         {searchQueryString.trim() === "" ? (
@@ -62,7 +79,7 @@ const Main = () => {
           <SiSpinrilla className="animate-spin h-6 w-6" />
         ) : isError ? (
           <p className="text-red-500">
-            An unexpected error occured: {error.message}
+            An unexpected error occurred: {error.message}
           </p>
         ) : (
           <div className="w-3/5">

@@ -1,7 +1,6 @@
 import { ReactQueryProvider } from "@/lib/providers/query-provider";
 import "./globals.css";
-//import store from "@/state/store/store";
-// import { Provider } from "react-redux";
+import { AuthProvider } from '../context/auth-context';
 
 export const metadata = {
   title: "Next.js",
@@ -12,7 +11,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <AuthProvider>
+          <ReactQueryProvider>{children}</ReactQueryProvider>
+        </AuthProvider>
       </body>
     </html>
   );

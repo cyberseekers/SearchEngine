@@ -14,3 +14,11 @@ export const incrementClickCount = async (websiteId: number) => {
     },
   });
 };
+
+export const deleteWebsite = async (websiteId: number) => {
+  return prisma.website.delete({
+    where: {
+      id: websiteId,
+    },
+  });
+};

@@ -1,6 +1,5 @@
 import { ReactQueryProvider } from "@/lib/providers/query-provider";
 import "./globals.css";
-import { AuthProvider } from '../context/auth-context';
 
 export const metadata = {
   title: "Next.js",
@@ -11,9 +10,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
-          <ReactQueryProvider>{children}</ReactQueryProvider>
-        </AuthProvider>
+        <ReactQueryProvider>{children}</ReactQueryProvider>
       </body>
     </html>
   );

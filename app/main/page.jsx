@@ -12,8 +12,7 @@ import { SiSpinrilla } from "react-icons/si";
 import { PaginationComponent } from "@/components/pagination";
 import { SearchOptions } from "@/components/search-options";
 import { WebsiteSortMode } from "@/lib/types/search";
-import LoggedOutNav from "@/components/nav";
-
+import NavBar from "@/components/nav";
 
 const Main = () => {
   const {
@@ -63,7 +62,7 @@ const Main = () => {
 
   return (
     <div className="font-sans bg-gray-100 text-center p-12 min-h-screen">
-      <LoggedOutNav />
+      <NavBar />
       <h1 className="text-4xl font-bold mb-8 text-black">Search Engine</h1>
       <SearchBar
         onSearch={handleSearch}

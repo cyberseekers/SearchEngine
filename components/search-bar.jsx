@@ -4,11 +4,7 @@ import React, { useEffect, useState } from "react";
 import { MdHistory } from "react-icons/md";
 import { TbBulb } from "react-icons/tb";
 
-const SearchBar = ({
-  onSearch,
-  onInputChange,
-  searchHistory,
-}) => {
+const SearchBar = ({ onSearch, onInputChange, searchHistory }) => {
   const { isSuccess, data, setWord, setKind } = useAutofill(10);
 
   const [userInput, setUserInput] = useState("");
@@ -76,6 +72,29 @@ const SearchBar = ({
     setKind("current");
   }, [userInput, setKind, setWord]);
 
+  const getMultipleSuggestions = () => {
+    if (!userInput || !data) {
+      return [];
+    }
+
+    const parts = userInput.match(/\w+|\s+/g) ?? undefined;
+
+    if (parts === undefined || parts.length === 0) {
+      return [];
+    }
+
+    const results = (
+      data.kind === "current"
+        ? data.words.map(
+            (word) =>
+              userInput.slice(0, userInput.lastIndexOf(parts.at(-1))) + word
+          )
+        : data.words.map((word) => userInput + (word ?? ""))
+    ).filter((item) => userInput !== item);
+
+    return results;
+  };
+
   const getSuggestion = () => {
     if (!userInput) {
       return "";
@@ -110,7 +129,6 @@ const SearchBar = ({
 
   const handleChange = (event) => {
     setUserInput(event.target.value); // Updates the query state as the user types in the input field
-    setShowSuggestions(true);
     onInputChange(event.target.value);
   };
 
@@ -152,7 +170,10 @@ const SearchBar = ({
   };
   const combinedSuggestions = [
     ...filteredHistory.map((hist) => ({ type: "history", value: hist })),
-    ...(data?.words.map((word) => ({ type: "autofill", value: word })) || [])
+    ...(getMultipleSuggestions().map((word) => ({
+      type: "autofill",
+      value: word,
+    })) || []),
   ];
 
   return (
@@ -167,6 +188,8 @@ const SearchBar = ({
           value={userInput}
           onChange={handleChange}
           onKeyDown={handleKeypress}
+          onFocus={() => setShowSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
           placeholder="Enter your search query here..."
         />
         {showSuggestions && userInput.trim() !== "" && (

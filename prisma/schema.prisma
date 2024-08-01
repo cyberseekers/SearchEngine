@@ -52,8 +52,8 @@ model Keyword {
 model WebsiteKeyword {
   websiteId      Int
   keywordId      Int
-  Website        Website      @relation(fields: [websiteId], references: [id])
-  Keyword        Keyword      @relation(fields: [keywordId], references: [id])
+  Website        Website      @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  Keyword        Keyword      @relation(fields: [keywordId], references: [id], onDelete: Cascade)
 
   @@id([websiteId, keywordId])
 }
@@ -63,6 +63,6 @@ model Ad {
   advertiserId   Int
   websiteId      Int
   bid            Float
-  Advertiser     Advertiser   @relation(fields: [advertiserId], references: [userId])
-  Website        Website      @relation(fields: [websiteId], references: [id])
+  Advertiser     Advertiser   @relation(fields: [advertiserId], references: [userId], onDelete: Cascade)
+  Website        Website      @relation(fields: [websiteId], references: [id], onDelete: Cascade)
 }

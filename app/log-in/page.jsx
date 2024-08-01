@@ -1,14 +1,14 @@
 "use client"
 import React from "react";
 import '../../styles/login.css';
-import LoggedOutNav from '../../components/logged-out-nav';
+import LoggedOutNav from '../../components/nav';
 import LoginFormSchema from '../../form_schema/login-schema'
 import { useValidation } from '../../form_schema/use-validation'
 import { useState } from "react";
-
+import { useAuth } from "@/context/auth-context";
 
 const LogIn = () => {
-
+    const { checkLogin } = useAuth();
     const [login, errors, setLogin] = useValidation(LoginFormSchema);
     const initialDisabled = true;
     const [disabled, setDisabled] = useState(initialDisabled);
@@ -31,6 +31,11 @@ const LogIn = () => {
         }
     }
 
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        checkLogin(login.username, login.password)
+    }
+
 
 
 
@@ -39,7 +44,7 @@ const LogIn = () => {
             <LoggedOutNav />
             <div className="login-container" >
                 <div className="login-box">
-                    <form className="login-form">
+                    <form className="login-form" onSubmit={handleSubmit}>
                         <h1>Login</h1>
                         <div className="input-group">
                             <label className="label-login">

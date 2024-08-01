@@ -56,6 +56,16 @@ const createFakeUser = () =>
     },
   });
 
+
+// createSpecificUser-- This creates a specific user for testing purposes
+const createSpecificUser = (username, password) =>
+  prisma.user.create({
+    data: {
+      username: username,
+      passwordHash: password,
+    },
+  });
+
 const createFakeAdmin = (userId) =>
   prisma.admin.create({
     data: {
@@ -135,6 +145,10 @@ const run = async () => {
   const [admin, ...advertisers] = await Promise.all(
     Array.from({ length: 3 }, createFakeUser)
   );
+
+  // create the specific user
+  const specificUser = await createSpecificUser('testUser', 'abc123');
+
   await createFakeAdmin(admin.id);
   await Promise.all(
     advertisers.map((advertiser) => createFakeAdvertiser(advertiser.id))
@@ -145,6 +159,11 @@ const run = async () => {
   for (const advertiser of advertisers) {
     console.log(`- ${advertiser.username}`);
   }
+
+  // Log the created specific user
+  console.log('Created specific user:');
+  console.log(`- Username: ${specificUser.username}`);
+  console.log(`- Password: ${specificUser.password}`);
 
   console.log("Creating websites...");
   await createWebsiteRecords();

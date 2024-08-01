@@ -12,7 +12,7 @@ import { SiSpinrilla } from "react-icons/si";
 import { PaginationComponent } from "@/components/pagination";
 import { SearchOptions } from "@/components/search-options";
 import { WebsiteSortMode } from "@/lib/types/search";
-import LoggedOutNav from "@/components/logged-out-nav";
+import LoggedOutNav from "@/components/nav";
 
 
 const Main = () => {

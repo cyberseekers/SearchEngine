@@ -14,7 +14,7 @@ const LoggedOutNav = () => {
             <div className="inner-nav-container">
                 <Link className='home-link' href='/'>Home</Link>
                 <Link className='login-link' href='/log-in' >Log-in</Link>
-
+                <Link className='home-link' href='/'>Log-out</Link>
             </div>
 
         </nav>
